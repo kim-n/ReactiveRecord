@@ -21,42 +21,79 @@ class SQLObject < MassObject
   end
 
   def self.all
-    # ...
+    results = DBConnection.execute(<<-SQL )
+      SELECT * FROM #{self.table_name}
+    SQL
+    
+    parse_all(results)
   end
 
   def self.find(id)
-    # ...
+    results = DBConnection.execute(<<-SQL, id )
+      SELECT * FROM #{self.table_name} WHERE id = ?
+    SQL
+    
+    parse_all(results)[0]
   end
 
   def insert
     # ...
+    col_names = self.class.attributes.join(", ")
+    
+    question_marks = (["?"] * self.class.attributes.count).join(",")
+    
+    results = DBConnection.execute(<<-SQL, *attribute_values )
+      INSERT INTO #{self.class.table_name} (#{col_names}) VALUES (#{question_marks})
+    SQL
+    
+    self.id = DBConnection.last_insert_row_id
   end
 
   def save
-    # ...
+    unless self.id.nil?
+      self.update
+    else
+      self.insert
+    end
   end
 
   def update
-    # ...
+    set_values = self.class.attributes.map {|attr| ["#{attr}=? "]}.join(",")
+    
+    question_marks = (["?"] * self.class.attributes.count).join(",")
+    
+    results = DBConnection.execute(<<-SQL,*attribute_values, id )
+      UPDATE  #{self.class.table_name}
+      SET #{set_values}
+      WHERE #{self.class.table_name}.id = ?
+    SQL
+
   end
 
   def attribute_values
-    # ...
+    attributes = []
+    col_names = self.class.attributes.join(", ")
+    p col_names
+    self.class.attributes.each do |attribute|
+      attributes << self.send(attribute)
+    end
+    attributes
   end
 end
 
-
-class Cat < SQLObject
-  my_attr_accessor :id, :name, :owner_id
-  my_attr_accessible :id, :name, :owner_id
-end
-
-class Human < SQLObject
-  self.table_name = "humans"
-
-  my_attr_accessor :id, :fname, :lname, :house_id
-  my_attr_accessible :id, :fname, :lname, :house_id
-end
-
-p Cat.table_name
-
+# 
+# class Cat < SQLObject
+#   my_attr_accessor :id, :name, :owner_id
+#   my_attr_accessible :id, :name, :owner_id
+# end
+# 
+# class Human < SQLObject
+#   self.table_name = "humans"
+# 
+#   my_attr_accessor :id, :fname, :lname, :house_id
+#   my_attr_accessible :id, :fname, :lname, :house_id
+# end
+# 
+# c = Cat.new
+# c.name = "mickey"
+# p c.attribute_values
