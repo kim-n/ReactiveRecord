@@ -39,7 +39,9 @@ end
 module Associatable
   # Phase IVb
   def belongs_to(name, options = {})
+    
     opts = BelongsToOptions.new(name, options)
+    self.assoc_options[name] = opts
     foreign_key = opts.foreign_key
     self.send(:define_method, name.to_s) do
       opts.model_class.where( :id => self.send(foreign_key)).first
@@ -58,10 +60,10 @@ module Associatable
 
   def assoc_options
     # Wait to implement this in Phase V. Modify `belongs_to`, too.
+    @assoc_options ||= {}
   end
 end
 
 class SQLObject
-  
   extend Associatable
 end
