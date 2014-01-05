@@ -22,7 +22,10 @@ class SQLObject < MassObject
 
   def self.all
     results = DBConnection.execute(<<-SQL )
-      SELECT * FROM #{self.table_name}
+      SELECT 
+        * 
+      FROM 
+        #{self.table_name}
     SQL
     
     parse_all(results)
@@ -30,7 +33,12 @@ class SQLObject < MassObject
 
   def self.find(id)
     results = DBConnection.execute(<<-SQL, id )
-      SELECT * FROM #{self.table_name} WHERE id = ?
+      SELECT 
+        * 
+      FROM 
+        #{self.table_name} 
+      WHERE 
+        id = ?
     SQL
     
     parse_all(results)[0]
@@ -42,7 +50,10 @@ class SQLObject < MassObject
     question_marks = (["?"] * self.class.attributes.count).join(",")
     
     results = DBConnection.execute(<<-SQL, *attribute_values )
-      INSERT INTO #{self.class.table_name} (#{col_names}) VALUES (#{question_marks})
+      INSERT INTO 
+        #{self.class.table_name} (#{col_names}) 
+      VALUES 
+        (#{question_marks})
     SQL
     
     self.id = DBConnection.last_insert_row_id
@@ -62,9 +73,12 @@ class SQLObject < MassObject
     question_marks = (["?"] * self.class.attributes.count).join(",")
     
     results = DBConnection.execute(<<-SQL,*attribute_values, id )
-      UPDATE  #{self.class.table_name}
-      SET #{set_values}
-      WHERE #{self.class.table_name}.id = ?
+      UPDATE  
+        #{self.class.table_name}
+      SET 
+        #{set_values}
+      WHERE 
+        #{self.class.table_name}.id = ?
     SQL
 
   end
