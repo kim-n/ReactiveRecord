@@ -1,3 +1,3 @@
-After the project, you can review the solution here:
+Clone basic features of Active Record. 
 
-* https://github.com/appacademy-solutions/active_record_lite/tree/solution
+Reconstruct mass assignment, abstracts away database querying and builds class associations using ruby metaprogramming.
